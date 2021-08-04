@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-conductor
+  labels:
+    app: multi-node-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-conductor
+  template:
+    metadata:
+      labels:
+        app: test-conductor
+    spec:
+      containers:
+      - image: docker.io/rayroestenburg/ssh-server:latest
+        imagePullPolicy: Always
+        name: multi-node-test
+        volumeMounts:
+        - mountPath: /root/.ssh/
+          name: ssh-dir
+        - mountPath: /etc/ssh/hostKeys/
+          name: ssh-host-keys
+        ports:
+        - name: web
+          containerPort: 80
+          protocol: TCP
+        - name: ssh
+          containerPort: 22
+          protocol: TCP
+      volumes:
+      - name: ssh-dir
+        secret:
+          secretName: ssh-keys
+          defaultMode: 0600
+      - name: ssh-host-keys
+        secret:
+          secretName: ssh-host-keys
+          defaultMode: 0600

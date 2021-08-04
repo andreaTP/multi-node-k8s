@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-conductor
+  labels:
+    app: multi-node-test
+spec:
+  selector:
+    app: test-conductor
+  ports:
+    - protocol: TCP
+      port: 22
+      targetPort: 22
