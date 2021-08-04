@@ -5,6 +5,7 @@ RUN apt-get update
 RUN apt-get install -y openssh-server sudo less curl iputils-ping
 RUN mkdir /var/run/sshd
 EXPOSE 22
+# instead mount, can you add other location for authorized_keys? (AuthorizedKeyFile)
 ADD authorized_keys /home/akka/.ssh/authorized_keys
 ADD id_rsa /home/akka/.ssh/id_rsa
 RUN \
