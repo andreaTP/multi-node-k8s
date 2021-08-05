@@ -12,7 +12,7 @@ cd container
 
 ### Deploy to Kubernetes
 
-yaml files refer to image `docker.io/rayroestenburg/multi-node-k8s:latest`, change this if needed.
+NOTE: yaml files refer to image `docker.io/rayroestenburg/multi-node-k8s:latest`, change this if needed.
 
 ```
 cd kubernetes
