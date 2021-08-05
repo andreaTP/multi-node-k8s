@@ -1,5 +1,5 @@
 #!/bin/bash
 
-docker build . -t rayroestenburg/ssh-server:latest
-docker tag rayroestenburg/ssh-server:latest docker.io/rayroestenburg/ssh-server:latest
-docker push docker.io/rayroestenburg/ssh-server:latest
+docker build . -t rayroestenburg/multi-node-k8s:latest
+docker tag rayroestenburg/multi-node-k8s:latest docker.io/rayroestenburg/multi-node-k8s:latest
+docker push docker.io/rayroestenburg/multi-node-k8s:latest

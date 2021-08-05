@@ -15,9 +15,20 @@ spec:
         app: test-node
     spec:
       containers:
-      - image: docker.io/rayroestenburg/ssh-server:latest
+      - image: docker.io/rayroestenburg/multi-node-k8s:latest
+        lifecycle:
+          postStart:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - mkdir /root/.ssh && cp /multinode/ssh/keys/* /root/.ssh
         imagePullPolicy: Always
         name: multi-node-test
+        volumeMounts:
+        - mountPath: /multinode/ssh/keys
+          subPath: keys
+          name: keys
         ports:
         - name: web
           containerPort: 80
@@ -25,3 +36,18 @@ spec:
         - name: ssh
           containerPort: 22
           protocol: TCP
+      volumes:
+      - name: keys
+        secret:
+          secretName: ssh-keys
+          defaultMode: 384
+          items:
+          - key: id_rsa
+            path: keys/id_rsa
+            mode: 256
+          - key: id_rsa.pub
+            path: keys/id_rsa.pub
+            mode: 256
+          - key: authorized_keys
+            path: keys/authorized_keys
+            mode: 256

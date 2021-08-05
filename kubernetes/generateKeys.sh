@@ -1,8 +1,12 @@
 #!/bin/bash
-rm -rf tmp_keys
-mkdir tmp_keys
-ssh-keygen -q -t rsa  -f tmp_keys/ssh_host_rsa_key -N "" -C ""
-cp tmp_keys/ssh_host_rsa_key.pub ../container/authorized_keys
-cp tmp_keys/ssh_host_rsa_key.pub ../container/id_rsa.pub
-cp tmp_keys/ssh_host_rsa_key ../container/id_rsa
-rm -rf tmp_keys
+rm -rf keys
+mkdir keys
+ssh-keygen -q -t rsa  -f keys/id_rsa -N "" -C ""
+cp keys/id_rsa.pub keys/authorized_keys
+kubectl delete secret ssh-keys
+kubectl create secret generic ssh-keys \
+--from-file=keys/id_rsa \
+--from-file=keys/id_rsa.pub \
+--from-file=keys/authorized_keys
+
+rm -rf keys
