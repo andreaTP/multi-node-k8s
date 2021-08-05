@@ -2,14 +2,10 @@ FROM ubuntu/nginx
 
 RUN apt-get update
 
-RUN apt-get install -y openssh-server less curl iputils-ping sudo
+RUN apt-get install -y openssh-server openjdk-11-jdk less
 RUN mkdir /var/run/sshd 
 EXPOSE 22
 RUN \
-  useradd -ms /bin/bash akka && \
-  usermod -U akka && \
-  chown -R akka:akka /home/akka && \
-  echo "akka:akka" | chpasswd && \
   echo "IdentityFile /root/.ssh/id_rsa" >> /etc/ssh/ssh_config && \
   echo "StrictHostKeyChecking accept-new" >> /etc/ssh/ssh_config && \
   echo "LogLevel VERBOSE" >> /etc/ssh/ssh_config && \
