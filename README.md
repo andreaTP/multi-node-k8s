@@ -48,7 +48,7 @@ cd kubernetes
 - `cd kubernetes`
 - run `./generateKeys.sh`
 - run `./setup-nodes.sh`
-- in a separate shell run `telepresence` ( https://www.telepresence.io/docs/latest/install/ )
+- in a separate shell run `telepresence` V1 ( https://www.telepresence.io/docs/v1/reference/install/ )
 - run `./post-setup.sh`
 - run `./check-connections.sh`
 - in the `akka/akka` project root copy the file `multi-node-test.hosts`
