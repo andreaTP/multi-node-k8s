@@ -18,48 +18,56 @@ NOTE: yaml files refer to image `docker.io/rayroestenburg/multi-node-k8s:latest`
 cd kubernetes
 ./generateKeys.sh
 ./setup-nodes.sh
+./post-setup.sh
 
 ```
 
 `generateKeys.sh`:
-- generates keys `id_rsa` and `id_rsa.pub` and adds the public key to `authorized_keys`
+
+- copy local `id_rsa` and `id_rsa.pub` to a local folder and adds the public key to `authorized_keys`
 - creates an `ssh-keys` secret
 
 `setup-nodes.sh`:
-- sets up two deployments, `test-conductor` and `test-node`, which mount the `ssh-keys` secret
-- sets up services for the two deployments, so they can be easily addressed in the cluster.
-- the pods run an sshd server, and can ssh into each other directly through `ssh test-node` and `ssh test-conductor`
 
-### Example
+- sets up 5 deployments, `test-nodeN`, which mount the `ssh-keys` secret
+- sets up services for the two deployments, so they can be easily addressed in the cluster.
+- the pods run an sshd server, and can ssh into each other directly through `ssh test-nodeN`
+
+`post-setup.sh`:
+
+- add the `test-nodeN` to known-hosts
+- tweak the `/etc/hosts` files so that service-name is resolved the same way as pod-name (and the application can bind to that name)
+
+`check-connections.sh`:
+
+- perform a test `ssh` connection to each of the services
+
+## Example workflow
+
+- start minikube
+- `cd kubernetes`
+- run `./generateKeys.sh`
+- run `./setup-nodes.sh`
+- in a separate shell run `telepresence` ( https://www.telepresence.io/docs/latest/install/ )
+- run `./post-setup.sh`
+- run `./check-connections.sh`
+- in the `akka/akka` project root copy the file `multi-node-test.hosts`
+- in the `akka/akka` project run:
 
 ```
-./generateKeys.sh
-
-secret "ssh-keys" deleted
-secret/ssh-keys created
-
-./setup-nodes.sh
-
-deployment.apps "test-conductor" deleted
-deployment.apps "test-node" deleted
-service "test-conductor" deleted
-service "test-node" deleted
-deployment.apps/test-conductor created
-deployment.apps/test-node created
-service/test-node created
-service/test-conductor created
-
-kubectl get pods
-
-NAME                             READY   STATUS              RESTARTS   AGE
-AME                             READY   STATUS    RESTARTS   AGE
-test-conductor-cdf6cff8b-gjkth   1/1     Running   0          89s
-test-node-69d456b86c-j4fbx       1/1     Running   0          88s
-
-kubectl exec -it test-conductor-cdf6cff8b-gjkth -- bash
-
-root@test-conductor-cdf6cff8b-gjkth:/# ssh test-node
-
-Warning: Permanently added 'test-node,10.3.248.56' (ECDSA) to the list of known hosts.
-Authenticated to test-node ([10.3.248.56]:22).
+sbt -mem 2048 \
+  -Dakka.test.timefactor=1 \
+  -Dakka.cluster.assert=on \
+  -Dsbt.override.build.repos=false \
+  -Dakka.test.tags.exclude=gh-exclude \
+  -Dakka.test.multi-node=true \
+  -Dakka.test.multi-node.targetDirName=${PWD}/target/${JOB_ID} \
+  -Dakka.test.multi-node.java=${JAVA_HOME}/bin/java \
+  -Dmultinode.XX:MetaspaceSize=128M \
+  -Dmultinode.XX:+UseCompressedOops \
+  -Dmultinode.Xms256M \
+  -Dmultinode.Xmx512M \
+  -Dmultinode.server-port=4711 \
+  -Dmultinode.max-nodes=1 \
+  akka-cluster-metrics/multiNodeTest
 ```

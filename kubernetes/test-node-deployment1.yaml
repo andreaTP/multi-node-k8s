@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test-conductor
+  name: test-node1
   labels:
-    app: multi-node-test
+    app: multi-node-test1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: test-conductor
+      app: test-node1
   template:
     metadata:
       labels:
-        app: test-conductor
+        app: test-node1
     spec:
       containers:
       - image: docker.io/rayroestenburg/multi-node-k8s:latest
@@ -24,7 +24,7 @@ spec:
                 - -c
                 - mkdir /root/.ssh && cp /multinode/ssh/keys/* /root/.ssh
         imagePullPolicy: Always
-        name: multi-node-test
+        name: multi-node-test1
         volumeMounts:
         - mountPath: /multinode/ssh/keys
           subPath: keys
@@ -35,6 +35,12 @@ spec:
           protocol: TCP
         - name: ssh
           containerPort: 22
+          protocol: TCP
+        - name: multi-node
+          containerPort: 5001
+          protocol: TCP
+        - name: server-multi
+          containerPort: 4711
           protocol: TCP
       volumes:
       - name: keys
